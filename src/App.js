@@ -1,24 +1,57 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import StartAR from './components/startAR';
+import CreateMemory from './components/CreateMemory';
+import EditMemory from './components/EditMemory';
+import AdminList from './components/AdminList';
+import AdminLogin from './components/AdminLogin';
+import RequireAuth from './components/RequireAuth';
+import ViewMemory from './components/ViewMemory';
+import ScanPrompt from './components/ScanPrompt';
+
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
+
+// Old QR codes/links point at /ar/:id — keep them working forever.
+function LegacyArRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/view/${id}`} replace />;
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<StartAR />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAuth>
+              <AdminList />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin/upload"
+          element={
+            <RequireAuth>
+              <CreateMemory />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin/edit/:id"
+          element={
+            <RequireAuth>
+              <EditMemory />
+            </RequireAuth>
+          }
+        />
+        <Route path="/view" element={<ScanPrompt />} />
+        <Route path="/view/:id" element={<ViewMemory />} />
+        <Route path="/ar" element={<Navigate to="/view" replace />} />
+        <Route path="/ar/:id" element={<LegacyArRedirect />} />
+      </Routes>
+    </Router>
   );
 }
 

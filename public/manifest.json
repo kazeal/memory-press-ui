@@ -1,25 +1,23 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Memories",
+  "name": "Memory Press",
+  "description": "Scan a photo to bring your memories to life in AR.",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "assets/exports/memory-press-icon-color.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
     },
     {
-      "src": "logo192.png",
+      "src": "assets/exports/memory-press-icon-color.png",
       "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "1024x1024"
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "start_url": "/view/",
+  "scope": "/view/",
+  "display": "browser",
+  "orientation": "portrait",
+  "theme_color": "#b68235",
+  "background_color": "#f8f4f4"
 }
