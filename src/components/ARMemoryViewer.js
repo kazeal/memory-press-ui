@@ -28,6 +28,7 @@ const ARMemoryViewer = ({ mindUrl, pairs, onCameraError, muted = true }) => {
 
     const videos = [];
     const cleanupFns = [];
+    const entries = [];
 
     pairs.forEach((pair) => {
       const anchor = mindarThree.addAnchor(pair.targetIndex);
@@ -39,6 +40,7 @@ const ARMemoryViewer = ({ mindUrl, pairs, onCameraError, muted = true }) => {
       video.playsInline = true;
       video.crossOrigin = 'anonymous';
       videos.push(video);
+      entries.push({ anchor, video });
 
       const onLoadedMetadata = () => {
         const aspect = video.videoWidth / video.videoHeight;
@@ -51,8 +53,26 @@ const ARMemoryViewer = ({ mindUrl, pairs, onCameraError, muted = true }) => {
       video.addEventListener('loadedmetadata', onLoadedMetadata);
       cleanupFns.push(() => video.removeEventListener('loadedmetadata', onLoadedMetadata));
 
-      anchor.onTargetFound = () => video.play();
-      anchor.onTargetLost = () => video.pause();
+      anchor.onTargetFound = () => {
+        // Only one target tracks at a time (maxTrack 1), but mind-ar can drop
+        // the "lost" event for the previous target during a handoff, leaving
+        // its plane frozen mid-air. Enforce single-active ourselves: hide and
+        // pause every other anchor whenever a target is found.
+        entries.forEach((other) => {
+          if (other.anchor !== anchor) {
+            other.video.pause();
+            other.anchor.group.visible = false;
+          }
+        });
+        video.play().catch(() => {
+          // Autoplay can be rejected (e.g. iOS Low Power Mode) — the target
+          // still shows the first frame, so fail quietly.
+        });
+      };
+      anchor.onTargetLost = () => {
+        video.pause();
+        anchor.group.visible = false;
+      };
     });
 
     let cancelled = false;
