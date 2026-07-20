@@ -1,5 +1,4 @@
 import React from 'react';
-import StartAR from './components/startAR';
 import CreateMemory from './components/CreateMemory';
 import EditMemory from './components/EditMemory';
 import AdminList from './components/AdminList';
@@ -20,7 +19,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<StartAR />} />
+        <Route path="/" element={<Navigate to="/view" replace />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route
           path="/admin"
