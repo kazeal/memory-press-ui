@@ -12,6 +12,18 @@ export function mindPath(id) {
   return `mind/${id}.mind`;
 }
 
+// Supabase free tier rejects uploads over 50MB. Catch it client-side with a
+// clear message instead of letting the upload run and fail opaquely.
+export const MAX_UPLOAD_MB = 50;
+
+export function oversizeError(files) {
+  const limit = MAX_UPLOAD_MB * 1024 * 1024;
+  const tooBig = files.find((f) => f && f.size > limit);
+  if (!tooBig) return null;
+  const mb = Math.round(tooBig.size / (1024 * 1024));
+  return `"${tooBig.name}" is ${mb}MB — files must be under ${MAX_UPLOAD_MB}MB. Please trim or compress it first.`;
+}
+
 function loadImage(source) {
   return new Promise((resolve, reject) => {
     const img = new Image();

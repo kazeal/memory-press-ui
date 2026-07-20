@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { normalizePairs } from '../lib/arTargets';
@@ -71,9 +71,11 @@ function ViewMemory() {
     let cancelled = false;
     supabase
       .from('ar_targets')
+      // No deleted_at filter here: the "anon read live" RLS policy already
+      // hides deleted rows, and anon has no column grant on deleted_at — so
+      // filtering on it client-side would be rejected outright.
       .select('title, mind_url, image_url, video_url, pairs')
       .eq('id', id)
-      .is('deleted_at', null)
       .single()
       .then(({ data, error: fetchError }) => {
         if (cancelled) return;
@@ -89,6 +91,15 @@ function ViewMemory() {
       cancelled = true;
     };
   }, [id]);
+
+  // Memoized so toggling sound doesn't hand ARMemoryViewer a new array
+  // identity — that would re-run its effect and rebuild the whole AR scene,
+  // leaving a frozen frame while the camera restarts.
+  const viewerPairs = useMemo(
+    () =>
+      (pairs || []).map((p) => ({ targetIndex: p.target_index, videoUrl: p.video_url })),
+    [pairs]
+  );
 
   if (error) {
     return (
@@ -112,8 +123,6 @@ function ViewMemory() {
       </div>
     );
   }
-
-  const viewerPairs = pairs.map((p) => ({ targetIndex: p.target_index, videoUrl: p.video_url }));
 
   if (cameraDenied) {
     return (
@@ -161,7 +170,6 @@ function ViewMemory() {
         onCameraError={handleCameraError}
         muted={muted}
       />
-      {title && <div className="ar-title-overlay">{title}</div>}
       <button
         className="ar-sound-toggle"
         onClick={() => setMuted((m) => !m)}

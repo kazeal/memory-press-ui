@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
-import { assetPaths, mindPath, compileMindBuffer, uploadAsset } from '../lib/arTargets';
+import { assetPaths, mindPath, compileMindBuffer, uploadAsset, oversizeError } from '../lib/arTargets';
 import { friendlyError } from '../lib/errors';
 import MemoryShare from './MemoryShare';
 import BrandMark from './BrandMark';
@@ -35,6 +35,12 @@ function CreateMemory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
+
+    const sizeError = oversizeError(pairs.flatMap((p) => [p.imageFile, p.videoFile]));
+    if (sizeError) {
+      setError(sizeError);
+      return;
+    }
 
     setError(null);
     setProgress(0);

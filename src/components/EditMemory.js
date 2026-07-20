@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
-import { assetPaths, mindPath, compileMindBuffer, uploadAsset, normalizePairs } from '../lib/arTargets';
+import { assetPaths, mindPath, compileMindBuffer, uploadAsset, normalizePairs, oversizeError } from '../lib/arTargets';
 import { friendlyError } from '../lib/errors';
 import ShareSidebar from './ShareSidebar';
 import BrandMark from './BrandMark';
@@ -91,6 +91,12 @@ function EditMemory() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!canSave) return;
+
+    const sizeError = oversizeError(pairs.flatMap((p) => [p.newImageFile, p.newVideoFile]));
+    if (sizeError) {
+      setError(sizeError);
+      return;
+    }
 
     setSaving(true);
     setError(null);

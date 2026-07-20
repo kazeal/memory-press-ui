@@ -6,6 +6,8 @@ import AdminLogin from './components/AdminLogin';
 import RequireAuth from './components/RequireAuth';
 import ViewMemory from './components/ViewMemory';
 import ScanPrompt from './components/ScanPrompt';
+import NotFound from './components/NotFound';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 
@@ -17,8 +19,9 @@ function LegacyArRedirect() {
 
 function App() {
   return (
-    <Router>
-      <Routes>
+    <ErrorBoundary>
+      <Router>
+        <Routes>
         <Route path="/" element={<Navigate to="/view" replace />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route
@@ -49,8 +52,10 @@ function App() {
         <Route path="/view/:id" element={<ViewMemory />} />
         <Route path="/ar" element={<Navigate to="/view" replace />} />
         <Route path="/ar/:id" element={<LegacyArRedirect />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
-    </Router>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
