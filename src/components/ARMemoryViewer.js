@@ -46,6 +46,9 @@ const ARMemoryViewer = ({ mindUrl, pairs, onCameraError, muted = true }) => {
         const aspect = video.videoWidth / video.videoHeight;
         const geometry = new THREE.PlaneGeometry(1, 1 / aspect);
         const texture = new THREE.VideoTexture(video);
+        // mind-ar's renderer outputs sRGB; without tagging the video texture
+        // as sRGB too, it gets double-converted and looks washed out.
+        texture.encoding = THREE.sRGBEncoding;
         const material = new THREE.MeshBasicMaterial({ map: texture });
         const plane = new THREE.Mesh(geometry, material);
         anchor.group.add(plane);
